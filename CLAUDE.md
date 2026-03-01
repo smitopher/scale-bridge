@@ -4,6 +4,71 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-`scale-bridge` is a new project licensed under CC0 1.0 Universal (public domain). The repository is in its initial state — no source code, build system, or dependencies have been added yet.
+scale-bridge is a Java daemon that reads weight data from an **Adam CPWplus 75** bench scale via a USB-serial adapter (FT232RL → `/dev/ttyUSB0`) and publishes readings to **Mosquitto MQTT** for consumption by **OpenHAB**. It runs as a Podman container on a Raspberry Pi Zero 2 W, managed by systemd via a Podman quadlet.
 
-Update this file as the project grows to document build commands, architecture, and conventions.
+## Build & Run
+
+```bash
+./gradlew build          # compile + test
+./gradlew test           # run tests only
+./gradlew run            # run locally (expects scale-bridge.properties in CWD)
+```
+
+Run a single test class:
+```bash
+./gradlew test --tests "org.example.SerialReaderTest"
+```
+
+Publish image to ghcr.io (requires prior `docker/podman login ghcr.io`):
+```bash
+./gradlew jib
+```
+
+## Architecture
+
+```
+App.java            Main loop: open serial → parse → on-change publish to MQTT
+├── Config.java     Loads scale-bridge.properties
+├── SerialReader.java   jSerialComm reads /dev/ttyUSB0; parses CPWplus ASCII lines
+│   └── WeightReading.java  Record: (value, unit, stable, raw)
+└── MqttPublisher.java  Eclipse Paho client; publishes weight/unit/status topics
+```
+
+**Data flow:** The CPWplus streams ~20-char ASCII lines in continuous mode (e.g. `ASNG/W+ 1.75 kg`). `SerialReader.parse()` extracts value, unit, and stability via regex. Only stable readings that differ from the last published value by at least `bridge.change_threshold` are forwarded to MQTT.
+
+**MQTT topics** (under `mqtt.topic_prefix`, default `scale/cpwplus75`):
+- `/weight` — numeric value as a string (e.g. `"1.750"`)
+- `/unit` — unit reported by scale (e.g. `"kg"`)
+- `/status` — `"online"` / `"offline"` (LWT)
+
+**Container:** Jib builds a `linux/arm64` OCI image from `eclipse-temurin:25-jre` and pushes to `ghcr.io/smitopher/scale-bridge`. The config file is mounted at `/config/scale-bridge.properties` at runtime.
+
+## Configuration
+
+Copy `scale-bridge.properties.example` → `scale-bridge.properties` and fill in `mqtt.host`. All other defaults work for a stock CPWplus 75.
+
+## Deployment (Pi)
+
+```bash
+# One-time setup
+mkdir -p ~/.config/containers/systemd ~/scale-bridge
+cp scale-bridge.properties ~/scale-bridge/scale-bridge.properties
+# edit ~/scale-bridge/scale-bridge.properties
+cp scale-bridge.container ~/.config/containers/systemd/
+systemctl --user daemon-reload
+
+# Start
+systemctl --user start scale-bridge
+
+# Updates: publish new image from dev machine, then on the Pi:
+podman auto-update   # or: systemctl --user restart scale-bridge
+```
+
+The user running the container must be in the `dialout` group for `/dev/ttyUSB0` access.
+
+## Key Dependencies
+
+- `com.fazecast:jSerialComm` — cross-platform serial port access
+- `org.eclipse.paho:org.eclipse.paho.client.mqttv3` — MQTT client
+- `com.google.cloud.tools.jib` — builds and publishes the container image
+- Java 25 toolchain / `eclipse-temurin:25-jre` base image

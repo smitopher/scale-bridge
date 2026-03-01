@@ -1,0 +1,9 @@
+[versions]
+junit-jupiter = "5.12.1"
+jserialcomm = "2.11.0"
+paho-mqtt = "1.2.5"
+
+[libraries]
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+jserialcomm = { module = "com.fazecast:jSerialComm", version.ref = "jserialcomm" }
+paho-mqtt = { module = "org.eclipse.paho:org.eclipse.paho.client.mqttv3", version.ref = "paho-mqtt" }

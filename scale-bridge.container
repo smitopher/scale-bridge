@@ -1,0 +1,24 @@
+# Podman quadlet — drop this file into:
+#   ~/.config/containers/systemd/   (rootless, recommended)
+#   /etc/containers/systemd/        (system-wide)
+#
+# Then reload: systemctl --user daemon-reload && systemctl --user start scale-bridge
+
+[Unit]
+Description=scale-bridge — Adam CPWplus 75 to MQTT
+After=network-online.target
+
+[Container]
+Image=ghcr.io/smitopher/scale-bridge:latest
+# Pass the USB-serial adapter into the container.
+AddDevice=/dev/ttyUSB0
+# Mount the config file (copy from scale-bridge.properties.example and edit).
+Volume=%h/scale-bridge/scale-bridge.properties:/config/scale-bridge.properties:ro,z
+AutoUpdate=registry
+
+[Service]
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

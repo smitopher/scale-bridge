@@ -1,0 +1,26 @@
+# scale-bridge configuration
+# Copy to scale-bridge.properties and edit before running.
+
+# --- Serial port ---
+serial.port=/dev/ttyUSB0
+serial.baud=9600
+
+# --- MQTT broker ---
+mqtt.host=192.168.1.100
+mqtt.port=1883
+# Leave blank if the broker requires no authentication.
+mqtt.username=
+mqtt.password=
+mqtt.client_id=scale-bridge
+# Base topic; weight is published to {prefix}/weight, unit to {prefix}/unit,
+# and online/offline status to {prefix}/status.
+mqtt.topic_prefix=scale/cpwplus75
+# Retain the last weight reading on the broker.
+mqtt.retain=true
+
+# --- Bridge behaviour ---
+# Minimum change in the weight value (in the scale's native unit) required
+# to trigger a new publish.  Avoids flooding MQTT with noise.
+bridge.change_threshold=0.01
+# Only publish readings that the scale reports as stable.
+bridge.stable_only=true
