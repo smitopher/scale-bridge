@@ -6,12 +6,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 scale-bridge is a Java daemon that reads weight data from an **Adam CPWplus 75** bench scale via a USB-serial adapter (FT232RL → `/dev/ttyUSB0`) and publishes readings to **Mosquitto MQTT** for consumption by **OpenHAB**. It runs as a Podman container on a Raspberry Pi Zero 2 W, managed by systemd via a Podman quadlet.
 
+**Subprojects:**
+- `app/` — the main scale-bridge service
+- `proxy/` — development tool: exposes the serial port over TCP so the scale can be observed and tested remotely
+
 ## Build & Run
 
 ```bash
-./gradlew build          # compile, test, Spotless check, SpotBugs
+./gradlew build          # compile, test, Spotless check, SpotBugs (all subprojects)
 ./gradlew test           # tests only
-./gradlew run            # run locally (expects scale-bridge.properties in CWD)
+./gradlew :app:run       # run scale-bridge locally (expects scale-bridge.properties in CWD)
 ./gradlew spotlessApply  # auto-format all Java source files
 ```
 
@@ -20,21 +24,25 @@ Run a single test class:
 ./gradlew test --tests "com.cjssolutions.scalebridge.SerialReaderTest"
 ```
 
-Publish image to ghcr.io (requires prior `podman login ghcr.io` or `docker login ghcr.io`):
+Publish images to ghcr.io (requires prior `podman login ghcr.io`):
 ```bash
 # Jib does not support Gradle configuration cache; --no-configuration-cache is required.
-./gradlew jib --no-configuration-cache                        # tags with project version + latest
-./gradlew jib --no-configuration-cache -Pversion=1.2.3        # override version
+./gradlew :app:jib --no-configuration-cache
+./gradlew :proxy:jib --no-configuration-cache
 ```
 
 ## Architecture
 
+### app
+
 ```
-App.java              Main loop: open serial → parse → on-change publish to MQTT
-├── Config.java       Loads scale-bridge.properties
-├── SerialReader.java jSerialComm reads /dev/ttyUSB0; parses CPWplus ASCII lines
+App.java               Main loop: open scale → parse → on-change publish to MQTT
+├── Config.java        Loads scale-bridge.properties
+├── ScaleReader.java   Interface implemented by both reader types
+├── SerialReader.java  jSerialComm reads /dev/ttyUSB0; parses CPWplus ASCII lines
+├── TcpScaleReader.java  Connects to scale-bridge-proxy over TCP (dev mode)
 │   └── WeightReading.java  Record: (value, unit, stable, raw)
-└── MqttPublisher.java      Eclipse Paho client; publishes weight/unit/status topics
+└── MqttPublisher.java  Eclipse Paho client; publishes weight/unit/status topics
 ```
 
 **Data flow:** The CPWplus streams ~20-char ASCII lines in continuous mode (e.g. `ASNG/W+ 1.75 kg`). `SerialReader.parse()` extracts value, unit, and stability via regex. Only stable readings that differ from the last published value by at least `bridge.change_threshold` are forwarded to MQTT.
@@ -44,7 +52,19 @@ App.java              Main loop: open serial → parse → on-change publish to 
 - `/unit` — unit reported by scale (e.g. `"kg"`)
 - `/status` — `"online"` / `"offline"` (LWT)
 
-**Container:** Jib builds a `linux/arm64` OCI image from `eclipse-temurin:25-jre` and pushes to `ghcr.io/smitopher/scale-bridge`. The config file is mounted at `/config/scale-bridge.properties` at runtime.
+**TCP dev mode:** Set `serial.mode=tcp` and `serial.tcp.host=<rpi-ip>` to connect to the proxy instead of a local serial port. Allows full end-to-end dev testing without hardware attached to the dev machine.
+
+### proxy
+
+```
+ProxyApp.java    Entry point
+ProxyConfig.java Loads scale-bridge-proxy.properties
+ScaleProxy.java  TCP server; bridges serial ↔ network (bidirectional, one client at a time)
+```
+
+Connect with `telnet <rpi-ip> 4567` or `nc <rpi-ip> 4567` to observe raw scale output and send commands (P, G, T). The proxy and main scale-bridge cannot run simultaneously — both need exclusive serial port access.
+
+**Container:** `ghcr.io/smitopher/scale-bridge-proxy`, port 4567. Deploy via `scale-bridge-proxy.container` quadlet.
 
 ## Package
 
@@ -52,7 +72,9 @@ App.java              Main loop: open serial → parse → on-change publish to 
 
 ## Configuration
 
-Copy `scale-bridge.properties.example` → `scale-bridge.properties` and fill in `mqtt.host`. All other defaults work for a stock CPWplus 75.
+Copy `scale-bridge.properties.example` → `scale-bridge.properties` and fill in `mqtt.host`. Set `serial.mode=tcp` and `serial.tcp.host` for dev mode via the proxy.
+
+Copy `scale-bridge-proxy.properties.example` → `scale-bridge-proxy.properties` for the proxy.
 
 ## Releasing
 
@@ -69,14 +91,15 @@ The release GitHub Actions workflow runs automatically: builds the image, pushes
 # One-time setup
 mkdir -p ~/.config/containers/systemd ~/scale-bridge
 cp scale-bridge.properties ~/scale-bridge/scale-bridge.properties
-# edit ~/scale-bridge/scale-bridge.properties
 cp scale-bridge.container ~/.config/containers/systemd/
-systemctl --user daemon-reload
+systemctl --user daemon-reload && systemctl --user start scale-bridge
 
-# Start
-systemctl --user start scale-bridge
+# For dev: swap to the proxy instead
+cp scale-bridge-proxy.properties ~/scale-bridge/scale-bridge-proxy.properties
+cp scale-bridge-proxy.container ~/.config/containers/systemd/
+systemctl --user daemon-reload && systemctl --user start scale-bridge-proxy
 
-# Updates: after publishing a new image from dev machine
+# Updates
 podman auto-update
 ```
 
@@ -92,5 +115,5 @@ The user running the container must be in the `dialout` group for `/dev/ttyUSB0`
 - `com.fazecast:jSerialComm` — cross-platform serial port access
 - `org.eclipse.paho:org.eclipse.paho.client.mqttv3` — MQTT client
 - `org.slf4j:slf4j-api` + `ch.qos.logback:logback-classic` — logging
-- `com.google.cloud.tools.jib` — builds and publishes the container image
+- `com.google.cloud.tools.jib` — builds and publishes container images
 - Java 25 toolchain / `eclipse-temurin:25-jre` base image

@@ -1,0 +1,23 @@
+# Podman quadlet for the scale proxy (development tool).
+# Drop into ~/.config/containers/systemd/ on the RPi.
+#
+# Run alongside the scale — but NOT at the same time as scale-bridge,
+# as both need exclusive access to /dev/ttyUSB0.
+
+[Unit]
+Description=scale-bridge proxy — exposes CPWplus serial port over TCP
+After=network-online.target
+
+[Container]
+Image=ghcr.io/smitopher/scale-bridge-proxy:latest
+AddDevice=/dev/ttyUSB0
+Volume=%h/scale-bridge/scale-bridge-proxy.properties:/config/scale-bridge-proxy.properties:ro,z
+PublishPort=4567:4567
+AutoUpdate=registry
+
+[Service]
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

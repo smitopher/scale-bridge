@@ -13,9 +13,12 @@ import java.util.Properties;
  */
 public final class Config {
 
-  // Serial port
+  // Serial connection (direct or via TCP proxy)
+  public final String serialMode; // "serial" or "tcp"
   public final String serialPort;
   public final int serialBaud;
+  public final String tcpHost;
+  public final int tcpPort;
 
   // MQTT broker
   public final String mqttHost;
@@ -36,8 +39,11 @@ public final class Config {
       p.load(in);
     }
 
+    serialMode = p.getProperty("serial.mode", "serial");
     serialPort = p.getProperty("serial.port", "/dev/ttyUSB0");
     serialBaud = Integer.parseInt(p.getProperty("serial.baud", "9600"));
+    tcpHost = p.getProperty("serial.tcp.host", "localhost");
+    tcpPort = Integer.parseInt(p.getProperty("serial.tcp.port", "4567"));
 
     mqttHost = p.getProperty("mqtt.host", "localhost");
     mqttPort = Integer.parseInt(p.getProperty("mqtt.port", "1883"));

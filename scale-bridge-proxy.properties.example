@@ -1,0 +1,9 @@
+# scale-bridge-proxy configuration
+# Copy to scale-bridge-proxy.properties and edit before running.
+
+# Serial port connected to the Adam CPWplus 75 scale.
+serial.port=/dev/ttyUSB0
+serial.baud=9600
+
+# TCP port to listen on.  Connect with: telnet <rpi-ip> 4567
+proxy.port=4567

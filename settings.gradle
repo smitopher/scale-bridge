@@ -5,3 +5,4 @@ plugins {
 
 rootProject.name = 'scale-bridge'
 include('app')
+include('proxy')

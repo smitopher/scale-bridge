@@ -38,11 +38,19 @@ public class App {
     }
   }
 
+  private static ScaleReader readerFor(Config config) {
+    if ("tcp".equalsIgnoreCase(config.serialMode)) {
+      LOG.info("Using TCP proxy at {}:{}", config.tcpHost, config.tcpPort);
+      return new TcpScaleReader(config.tcpHost, config.tcpPort);
+    }
+    return new SerialReader(config);
+  }
+
   private static void runBridge(Config config, MqttPublisher publisher) {
     Double lastValue = null;
 
     while (true) {
-      try (SerialReader reader = new SerialReader(config)) {
+      try (ScaleReader reader = readerFor(config)) {
         reader.open();
 
         while (true) {

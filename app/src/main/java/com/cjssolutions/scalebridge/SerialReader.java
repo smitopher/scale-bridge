@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * The leading status characters indicate mode and stability; a 'U' in that prefix indicates an
  * unstable reading. A regex extracts sign, numeric value, and unit regardless of exact framing.
  */
-public class SerialReader implements AutoCloseable {
+public class SerialReader implements ScaleReader {
 
   private static final Logger LOG = LoggerFactory.getLogger(SerialReader.class);
 

@@ -1,9 +1,14 @@
 # scale-bridge configuration
 # Copy to scale-bridge.properties and edit before running.
 
-# --- Serial port ---
+# --- Serial connection ---
+# Mode: "serial" for direct USB connection, "tcp" to use scale-bridge-proxy.
+serial.mode=serial
 serial.port=/dev/ttyUSB0
 serial.baud=9600
+# TCP proxy settings (used when serial.mode=tcp)
+serial.tcp.host=raspberrypi.local
+serial.tcp.port=4567
 
 # --- MQTT broker ---
 mqtt.host=192.168.1.100

@@ -1,0 +1,81 @@
+plugins {
+    id 'application'
+    alias(libs.plugins.jib)
+    alias(libs.plugins.spotbugs)
+    alias(libs.plugins.spotless)
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation libs.junit.jupiter
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation libs.jserialcomm
+    implementation libs.slf4j.api
+    runtimeOnly libs.logback.classic
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+application {
+    mainClass = 'com.cjssolutions.scalebridge.proxy.ProxyApp'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// --- Spotless ---
+spotless {
+    java {
+        googleJavaFormat()
+        removeUnusedImports()
+    }
+}
+
+// --- SpotBugs ---
+spotbugs {
+    toolVersion = '4.9.8'
+    effort = 'max'
+    reportLevel = 'medium'
+}
+
+spotbugsMain {
+    reports {
+        html { required = true }
+        xml { required = false }
+    }
+}
+
+spotbugsTest {
+    ignoreFailures = true
+}
+
+// --- Jib ---
+jib {
+    from {
+        image = 'eclipse-temurin:25-jre'
+        platforms {
+            platform {
+                architecture = 'arm64'
+                os = 'linux'
+            }
+        }
+    }
+    to {
+        image = 'ghcr.io/smitopher/scale-bridge-proxy'
+        tags = ['latest']
+    }
+    container {
+        mainClass = 'com.cjssolutions.scalebridge.proxy.ProxyApp'
+        args = ['/config/scale-bridge-proxy.properties']
+        ports = ['4567']
+    }
+}
