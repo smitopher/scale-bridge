@@ -1,6 +1,6 @@
 [versions]
 junit-jupiter = "6.0.3"
-jserialcomm = "2.11.0"
+jserialcomm = "2.11.4"
 logback = "1.5.32"
 paho-mqtt = "1.2.5"
 slf4j = "2.0.17"
