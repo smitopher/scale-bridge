@@ -1,9 +1,10 @@
 /*
  * SPDX-License-Identifier: CC0-1.0
  */
-package org.example;
+package com.cjssolutions.scalebridge;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * scale-bridge — bridges an Adam CPWplus 75 scale (via USB-serial) to MQTT.
@@ -13,8 +14,8 @@ import java.util.logging.Logger;
  */
 public class App {
 
-    private static final Logger LOG            = Logger.getLogger(App.class.getName());
-    private static final int    RETRY_DELAY_MS = 5_000;
+    private static final Logger LOG = LoggerFactory.getLogger(App.class);
+    private static final int RETRY_DELAY_MS = 5_000;
 
     public static void main(String[] args) {
         String configPath = args.length > 0 ? args[0] : "scale-bridge.properties";
@@ -32,7 +33,7 @@ public class App {
             publisher.connect();
             runBridge(config, publisher);
         } catch (Exception e) {
-            LOG.severe("Fatal error: " + e.getMessage());
+            LOG.error("Fatal error: {}", e.getMessage());
             System.exit(1);
         }
     }
@@ -51,7 +52,7 @@ public class App {
                         continue;
                     }
                     if (config.stableOnly && !reading.stable()) {
-                        LOG.fine(() -> "Skipping unstable: " + reading.raw());
+                        LOG.debug("Skipping unstable: {}", reading.raw());
                         continue;
                     }
 
@@ -65,8 +66,7 @@ public class App {
                 }
 
             } catch (Exception e) {
-                LOG.warning("Serial error: %s — retrying in %ds".formatted(
-                        e.getMessage(), RETRY_DELAY_MS / 1000));
+                LOG.warn("Serial error: {} — retrying in {}s", e.getMessage(), RETRY_DELAY_MS / 1000);
                 try {
                     Thread.sleep(RETRY_DELAY_MS);
                 } catch (InterruptedException ie) {

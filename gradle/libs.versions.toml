@@ -1,9 +1,18 @@
 [versions]
 junit-jupiter = "5.12.1"
 jserialcomm = "2.11.0"
+logback = "1.5.18"
 paho-mqtt = "1.2.5"
+slf4j = "2.0.17"
+spotbugs = "6.1.7"
 
 [libraries]
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 jserialcomm = { module = "com.fazecast:jSerialComm", version.ref = "jserialcomm" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 paho-mqtt = { module = "org.eclipse.paho:org.eclipse.paho.client.mqttv3", version.ref = "paho-mqtt" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+
+[plugins]
+spotbugs = { id = "com.github.spotbugs", version.ref = "spotbugs" }
+jib = { id = "com.google.cloud.tools.jib", version = "3.4.4" }

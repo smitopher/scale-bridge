@@ -1,14 +1,15 @@
 /*
  * SPDX-License-Identifier: CC0-1.0
  */
-package org.example;
+package com.cjssolutions.scalebridge;
 
 import com.fazecast.jSerialComm.SerialPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,7 +27,7 @@ import java.util.regex.Pattern;
  */
 public class SerialReader implements AutoCloseable {
 
-    private static final Logger LOG = Logger.getLogger(SerialReader.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(SerialReader.class);
 
     /** Matches optional sign, a decimal number, and a weight unit. */
     private static final Pattern WEIGHT_RE = Pattern.compile(
@@ -34,9 +35,9 @@ public class SerialReader implements AutoCloseable {
             Pattern.CASE_INSENSITIVE
     );
 
-    private final Config     config;
-    private SerialPort       port;
-    private BufferedReader   reader;
+    private final Config config;
+    private SerialPort port;
+    private BufferedReader reader;
 
     public SerialReader(Config config) {
         this.config = config;
@@ -59,7 +60,7 @@ public class SerialReader implements AutoCloseable {
         reader = new BufferedReader(
                 new InputStreamReader(port.getInputStream(), StandardCharsets.US_ASCII));
 
-        LOG.info(() -> "Opened %s at %d baud".formatted(config.serialPort, config.serialBaud));
+        LOG.info("Opened {} at {} baud", config.serialPort, config.serialBaud);
     }
 
     /**
@@ -84,7 +85,7 @@ public class SerialReader implements AutoCloseable {
     static WeightReading parse(String line) {
         Matcher m = WEIGHT_RE.matcher(line);
         if (!m.find()) {
-            LOG.fine(() -> "No weight found in: " + line);
+            LOG.debug("No weight found in: {}", line);
             return null;
         }
 

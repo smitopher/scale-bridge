@@ -1,14 +1,14 @@
 /*
  * SPDX-License-Identifier: CC0-1.0
  */
-package org.example;
+package com.cjssolutions.scalebridge;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Publishes weight readings to an MQTT broker using Eclipse Paho.
@@ -22,9 +22,9 @@ import java.util.logging.Logger;
  */
 public class MqttPublisher implements AutoCloseable {
 
-    private static final Logger LOG = Logger.getLogger(MqttPublisher.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(MqttPublisher.class);
 
-    private final Config     config;
+    private final Config config;
     private final MqttClient client;
 
     public MqttPublisher(Config config) throws MqttException {
@@ -45,15 +45,10 @@ public class MqttPublisher implements AutoCloseable {
         }
 
         // Last-will: mark as offline if the connection drops unexpectedly.
-        opts.setWill(
-                statusTopic(),
-                "offline".getBytes(),
-                1,
-                true   // retain
-        );
+        opts.setWill(statusTopic(), "offline".getBytes(), 1, true);
 
         client.connect(opts);
-        LOG.info(() -> "MQTT connected to %s:%d".formatted(config.mqttHost, config.mqttPort));
+        LOG.info("MQTT connected to {}:{}", config.mqttHost, config.mqttPort);
 
         publish(statusTopic(), "online", 1, true);
     }
@@ -62,8 +57,8 @@ public class MqttPublisher implements AutoCloseable {
     public void publishReading(WeightReading reading) throws MqttException {
         String weightStr = "%.3f".formatted(reading.value());
         publish(config.mqttTopicPrefix + "/weight", weightStr, 0, config.mqttRetain);
-        publish(config.mqttTopicPrefix + "/unit",   reading.unit(), 0, config.mqttRetain);
-        LOG.info(() -> "Published: %s %s".formatted(weightStr, reading.unit()));
+        publish(config.mqttTopicPrefix + "/unit", reading.unit(), 0, config.mqttRetain);
+        LOG.info("Published: {} {}", weightStr, reading.unit());
     }
 
     private void publish(String topic, String payload, int qos, boolean retain) throws MqttException {
@@ -86,7 +81,7 @@ public class MqttPublisher implements AutoCloseable {
             }
             client.close();
         } catch (MqttException e) {
-            LOG.warning("Error closing MQTT client: " + e.getMessage());
+            LOG.warn("Error closing MQTT client: {}", e.getMessage());
         }
     }
 }

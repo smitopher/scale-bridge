@@ -1,7 +1,7 @@
 /*
  * SPDX-License-Identifier: CC0-1.0
  */
-package org.example;
+package com.cjssolutions.scalebridge;
 
 /**
  * A single weight reading parsed from the CPWplus serial output.

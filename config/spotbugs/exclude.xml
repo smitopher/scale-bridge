@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!--
+        Config uses public final fields intentionally — no getters needed for
+        this internal configuration class.
+    -->
+    <Match>
+        <Class name="com.cjssolutions.scalebridge.Config"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+
+    <!--
+        MqttConnectOptions.setPassword takes char[], which we derive from a
+        String. The intermediate char[] is not a security concern here as it
+        is immediately consumed by the Paho library.
+    -->
+    <Match>
+        <Class name="com.cjssolutions.scalebridge.MqttPublisher"/>
+        <Bug pattern="DM_STRING_TOCHARARRAY"/>
+    </Match>
+</FindBugsFilter>

@@ -1,7 +1,7 @@
 /*
  * SPDX-License-Identifier: CC0-1.0
  */
-package org.example;
+package com.cjssolutions.scalebridge;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,11 +15,11 @@ public class Config {
 
     // Serial port
     public final String serialPort;
-    public final int    serialBaud;
+    public final int serialBaud;
 
     // MQTT broker
     public final String mqttHost;
-    public final int    mqttPort;
+    public final int mqttPort;
     public final String mqttUsername;
     public final String mqttPassword;
     public final String mqttClientId;
@@ -27,7 +27,7 @@ public class Config {
     public final boolean mqttRetain;
 
     // Bridge behaviour
-    public final double  changeThreshold;
+    public final double changeThreshold;
     public final boolean stableOnly;
 
     public Config(String path) throws IOException {
@@ -36,18 +36,18 @@ public class Config {
             p.load(in);
         }
 
-        serialPort  = p.getProperty("serial.port",  "/dev/ttyUSB0");
-        serialBaud  = Integer.parseInt(p.getProperty("serial.baud", "9600"));
+        serialPort = p.getProperty("serial.port", "/dev/ttyUSB0");
+        serialBaud = Integer.parseInt(p.getProperty("serial.baud", "9600"));
 
-        mqttHost        = p.getProperty("mqtt.host",         "localhost");
-        mqttPort        = Integer.parseInt(p.getProperty("mqtt.port", "1883"));
-        mqttUsername    = p.getProperty("mqtt.username",     "");
-        mqttPassword    = p.getProperty("mqtt.password",     "");
-        mqttClientId    = p.getProperty("mqtt.client_id",    "scale-bridge");
+        mqttHost = p.getProperty("mqtt.host", "localhost");
+        mqttPort = Integer.parseInt(p.getProperty("mqtt.port", "1883"));
+        mqttUsername = p.getProperty("mqtt.username", "");
+        mqttPassword = p.getProperty("mqtt.password", "");
+        mqttClientId = p.getProperty("mqtt.client_id", "scale-bridge");
         mqttTopicPrefix = p.getProperty("mqtt.topic_prefix", "scale/cpwplus75");
-        mqttRetain      = Boolean.parseBoolean(p.getProperty("mqtt.retain", "true"));
+        mqttRetain = Boolean.parseBoolean(p.getProperty("mqtt.retain", "true"));
 
         changeThreshold = Double.parseDouble(p.getProperty("bridge.change_threshold", "0.01"));
-        stableOnly      = Boolean.parseBoolean(p.getProperty("bridge.stable_only",    "true"));
+        stableOnly = Boolean.parseBoolean(p.getProperty("bridge.stable_only", "true"));
     }
 }

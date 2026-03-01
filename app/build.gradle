@@ -1,6 +1,8 @@
 plugins {
     id 'application'
-    id 'com.google.cloud.tools.jib' version '3.4.4'
+    alias(libs.plugins.jib)
+    alias(libs.plugins.spotbugs)
+    id 'checkstyle'
 }
 
 repositories {
@@ -13,6 +15,8 @@ dependencies {
 
     implementation libs.jserialcomm
     implementation libs.paho.mqtt
+    implementation libs.slf4j.api
+    runtimeOnly libs.logback.classic
 }
 
 java {
@@ -22,13 +26,39 @@ java {
 }
 
 application {
-    mainClass = 'org.example.App'
+    mainClass = 'com.cjssolutions.scalebridge.App'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
 }
 
+// --- Checkstyle ---
+checkstyle {
+    toolVersion = '10.21.4'
+    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+    maxWarnings = 0
+}
+
+// --- SpotBugs ---
+spotbugs {
+    effort = 'max'
+    reportLevel = 'medium'
+    excludeFilter = rootProject.file('config/spotbugs/exclude.xml')
+}
+
+spotbugsMain {
+    reports {
+        html { required = true }
+        xml { required = false }
+    }
+}
+
+spotbugsTest {
+    ignoreFailures = true
+}
+
+// --- Jib ---
 jib {
     from {
         image = 'eclipse-temurin:25-jre'
@@ -41,10 +71,12 @@ jib {
     }
     to {
         image = 'ghcr.io/smitopher/scale-bridge'
+        // Project version is used as the primary tag; 'latest' is added additionally.
+        tags = ['latest']
     }
     container {
-        mainClass = 'org.example.App'
-        // Config file path — mount scale-bridge.properties at /config/ at runtime.
+        mainClass = 'com.cjssolutions.scalebridge.App'
+        // Config file mounted at runtime via: -v /path/to/config:/config:ro
         args = ['/config/scale-bridge.properties']
     }
 }
