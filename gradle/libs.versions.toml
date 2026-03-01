@@ -1,10 +1,10 @@
 [versions]
-junit-jupiter = "5.12.1"
+junit-jupiter = "5.12.2"
 jserialcomm = "2.11.0"
 logback = "1.5.18"
 paho-mqtt = "1.2.5"
 slf4j = "2.0.17"
-spotbugs = "6.1.7"
+spotbugs = "6.4.8"
 
 [libraries]
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
@@ -14,6 +14,6 @@ paho-mqtt = { module = "org.eclipse.paho:org.eclipse.paho.client.mqttv3", versio
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 [plugins]
-jib = { id = "com.google.cloud.tools.jib", version = "3.4.4" }
+jib = { id = "com.google.cloud.tools.jib", version = "3.5.3" }
 spotbugs = { id = "com.github.spotbugs", version.ref = "spotbugs" }
-spotless = { id = "com.diffplug.spotless", version = "7.0.2" }
+spotless = { id = "com.diffplug.spotless", version = "8.2.1" }

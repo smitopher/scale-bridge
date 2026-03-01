@@ -11,7 +11,7 @@ import java.util.Properties;
  * Application configuration loaded from a .properties file. All fields are immutable after
  * construction.
  */
-public class Config {
+public final class Config {
 
   // Serial port
   public final String serialPort;

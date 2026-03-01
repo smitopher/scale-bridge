@@ -43,6 +43,8 @@ spotless {
 
 // --- SpotBugs ---
 spotbugs {
+    // 4.9.8+ is required for Java 25 class file support.
+    toolVersion = '4.9.8'
     effort = 'max'
     reportLevel = 'medium'
     excludeFilter = rootProject.file('config/spotbugs/exclude.xml')

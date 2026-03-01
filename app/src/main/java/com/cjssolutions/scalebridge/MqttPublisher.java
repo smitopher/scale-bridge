@@ -3,6 +3,7 @@
  */
 package com.cjssolutions.scalebridge;
 
+import java.nio.charset.StandardCharsets;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -46,7 +47,7 @@ public class MqttPublisher implements AutoCloseable {
     }
 
     // Last-will: mark as offline if the connection drops unexpectedly.
-    opts.setWill(statusTopic(), "offline".getBytes(), 1, true);
+    opts.setWill(statusTopic(), "offline".getBytes(StandardCharsets.UTF_8), 1, true);
 
     client.connect(opts);
     LOG.info("MQTT connected to {}:{}", config.mqttHost, config.mqttPort);
@@ -63,7 +64,7 @@ public class MqttPublisher implements AutoCloseable {
   }
 
   private void publish(String topic, String payload, int qos, boolean retain) throws MqttException {
-    MqttMessage msg = new MqttMessage(payload.getBytes());
+    MqttMessage msg = new MqttMessage(payload.getBytes(StandardCharsets.UTF_8));
     msg.setQos(qos);
     msg.setRetained(retain);
     client.publish(topic, msg);
