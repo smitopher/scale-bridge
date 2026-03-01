@@ -22,8 +22,9 @@ Run a single test class:
 
 Publish image to ghcr.io (requires prior `podman login ghcr.io` or `docker login ghcr.io`):
 ```bash
-./gradlew jib                        # tags with project version + latest
-./gradlew jib -Pversion=1.2.3        # override version
+# Jib does not support Gradle configuration cache; --no-configuration-cache is required.
+./gradlew jib --no-configuration-cache                        # tags with project version + latest
+./gradlew jib --no-configuration-cache -Pversion=1.2.3        # override version
 ```
 
 ## Architecture

@@ -31,7 +31,8 @@ jobs:
 
       - name: Publish image
         # Strip the leading 'v' from the tag (v1.2.3 → 1.2.3)
-        run: ./gradlew jib -Pversion=${GITHUB_REF_NAME#v}
+        # Jib does not support Gradle configuration cache.
+        run: ./gradlew jib -Pversion=${GITHUB_REF_NAME#v} --no-configuration-cache
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
