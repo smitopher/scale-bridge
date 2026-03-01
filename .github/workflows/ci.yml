@@ -17,7 +17,7 @@ jobs:
           java-version: '25'
           distribution: 'temurin'
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v5
 
       - name: Build, test, and analyse
         run: ./gradlew build
