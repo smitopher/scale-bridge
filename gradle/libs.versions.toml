@@ -14,5 +14,6 @@ paho-mqtt = { module = "org.eclipse.paho:org.eclipse.paho.client.mqttv3", versio
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 [plugins]
-spotbugs = { id = "com.github.spotbugs", version.ref = "spotbugs" }
 jib = { id = "com.google.cloud.tools.jib", version = "3.4.4" }
+spotbugs = { id = "com.github.spotbugs", version.ref = "spotbugs" }
+spotless = { id = "com.diffplug.spotless", version = "7.0.2" }

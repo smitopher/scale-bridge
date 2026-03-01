@@ -2,7 +2,7 @@ plugins {
     id 'application'
     alias(libs.plugins.jib)
     alias(libs.plugins.spotbugs)
-    id 'checkstyle'
+    alias(libs.plugins.spotless)
 }
 
 repositories {
@@ -33,11 +33,12 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-// --- Checkstyle ---
-checkstyle {
-    toolVersion = '10.21.4'
-    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
-    maxWarnings = 0
+// --- Spotless ---
+spotless {
+    java {
+        googleJavaFormat()
+        removeUnusedImports()
+    }
 }
 
 // --- SpotBugs ---

@@ -9,10 +9,10 @@ scale-bridge is a Java daemon that reads weight data from an **Adam CPWplus 75**
 ## Build & Run
 
 ```bash
-./gradlew build          # compile, test, checkstyle, SpotBugs
+./gradlew build          # compile, test, Spotless check, SpotBugs
 ./gradlew test           # tests only
 ./gradlew run            # run locally (expects scale-bridge.properties in CWD)
-./gradlew check          # static analysis without compiling tests
+./gradlew spotlessApply  # auto-format all Java source files
 ```
 
 Run a single test class:
@@ -83,7 +83,7 @@ The user running the container must be in the `dialout` group for `/dev/ttyUSB0`
 
 ## Static analysis
 
-- **Checkstyle** — config in `config/checkstyle/checkstyle.xml`; enforces naming, import hygiene, line length (120), no tabs, braces required
+- **Spotless** — uses Google Java Format; run `./gradlew spotlessApply` to auto-format, `spotlessCheck` runs as part of `build`
 - **SpotBugs** — config in `config/spotbugs/exclude.xml`; runs at `max` effort, `medium` report level; test failures are suppressed
 
 ## Key Dependencies
