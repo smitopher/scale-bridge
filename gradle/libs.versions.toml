@@ -16,4 +16,4 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 [plugins]
 jib = { id = "com.google.cloud.tools.jib", version = "3.5.3" }
 spotbugs = { id = "com.github.spotbugs", version.ref = "spotbugs" }
-spotless = { id = "com.diffplug.spotless", version = "8.2.1" }
+spotless = { id = "com.diffplug.spotless", version = "8.4.0" }
