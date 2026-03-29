@@ -1,0 +1,8 @@
+{
+  "release-type": "java",
+  "packages": {
+    ".": {
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}
