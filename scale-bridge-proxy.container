@@ -11,6 +11,7 @@ After=network-online.target
 [Container]
 Image=ghcr.io/smitopher/scale-bridge-proxy:latest
 AddDevice=/dev/ttyUSB0
+PodmanArgs=--group-add keep-groups
 Volume=%h/scale-bridge/scale-bridge-proxy.properties:/config/scale-bridge-proxy.properties:ro,z
 PublishPort=4567:4567
 AutoUpdate=registry
