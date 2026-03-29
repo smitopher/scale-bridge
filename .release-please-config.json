@@ -1,0 +1,9 @@
+{
+  "release-type": "java",
+  "bootstrap-sha": "9600f4701683193633e456b05f6a88a9b58aef0c",
+  "packages": {
+    ".": {
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}

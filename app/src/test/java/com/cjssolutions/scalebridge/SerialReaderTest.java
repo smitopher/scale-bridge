@@ -41,6 +41,15 @@ class SerialReaderTest {
   }
 
   @Test
+  void parsesOzUnitWithIntegerValue() {
+    WeightReading r = SerialReader.parse("ASNG/W+    12  oz");
+    assertNotNull(r);
+    assertEquals(12.0, r.value(), 0.001);
+    assertEquals("oz", r.unit());
+    assertTrue(r.stable());
+  }
+
+  @Test
   void returnsNullForGarbage() {
     assertNull(SerialReader.parse("no weight here"));
   }
