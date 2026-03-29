@@ -19,7 +19,7 @@ jobs:
           java-version: '25'
           distribution: 'temurin'
 
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Login to GHCR
         uses: docker/login-action@v4
