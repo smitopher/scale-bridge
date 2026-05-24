@@ -1,5 +1,5 @@
 [versions]
-junit-jupiter = "6.0.3"
+junit-jupiter = "6.1.0"
 jserialcomm = "2.11.4"
 logback = "1.5.32"
 paho-mqtt = "1.2.5"
